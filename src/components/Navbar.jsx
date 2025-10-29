@@ -30,6 +30,9 @@ function Navbar() {
         <div className="hidden md:flex gap-8 text-lg font-medium text-amber-900">
           <Link to="/" className="hover:text-amber-700 transition-colors">Home</Link>
           <Link to="/products" className="hover:text-amber-700 transition-colors">Products</Link>
+          <Link to="/skincare" className="hover:text-amber-700 transition-colors">Skincare</Link>
+          <Link to="/makeup" className="hover:text-amber-700 transition-colors">Makeup</Link>
+          <Link to="/perfume" className="hover:text-amber-700 transition-colors">Perfume</Link>
         </div>
 
         {/* Cart */}
@@ -61,6 +64,15 @@ function Navbar() {
         <div className="md:hidden  bg-white text-amber-900 flex flex-col items-center space-y-2 pb-2 text-lg font-medium mt-2">
           <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
             Home
+          </Link>
+          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Products
+          </Link>
+          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Products
+          </Link>
+          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Products
           </Link>
           <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
             Products
