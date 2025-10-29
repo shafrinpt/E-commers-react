@@ -1,23 +1,48 @@
+import makeupImg from "../assets/images/makeup.jpg";
+import skinCare from "../assets/images/skincare.jpg";
+import perfume from "../assets/images/perfume.jpg";
+
 const products = [
   {
     id: 1,
-    name: "Matte Lipstick",
+    name: "Makeup Products",
     price: 499,
-    image: "/images/lipstick.jpg",
+    image: makeupImg,
     description: "Long-lasting matte lipstick.",
   },
   {
     id: 2,
-    name: "Face Cream",
+    name: "Skincare",
     price: 699,
-    image: "/images/cream.jpg",
+    image: skinCare,
     description: "Hydrating face cream.",
   },
   {
     id: 3,
-    name: "Eyeliner",
+    name: "Perfume",
     price: 299,
-    image: "/images/eyeliner.jpg",
+    image: perfume,
+    description: "Precision eyeliner.",
+  },
+   {
+    id: 3,
+    name: "Perfume",
+    price: 299,
+    image: perfume,
+    description: "Precision eyeliner.",
+  },
+   {
+    id: 3,
+    name: "Perfume",
+    price: 299,
+    image: perfume,
+    description: "Precision eyeliner.",
+  },
+   {
+    id: 3,
+    name: "Perfume",
+    price: 299,
+    image: perfume,
     description: "Precision eyeliner.",
   },
 ];

@@ -4,6 +4,7 @@ import { increaseQuantity, decreaseQuantity, removeFromCart } from "../redux/car
 function Cart() {
   const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
+console.log(cartItems);
 
   const totalPrice = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -16,7 +17,7 @@ function Cart() {
 
   return (
     <div className="px-4 md:px-16 py-10">
-      <h2 className="text-3xl font-bold text-pink-700 mb-8 text-center">
+      <h2 className="text-3xl font-bold text-secondery mb-8 text-center">
         Your Cart
       </h2>
 
@@ -30,7 +31,7 @@ function Cart() {
               <img src={item.image} alt={item.name} className="w-20 h-20 rounded-lg" />
               <div>
                 <h3 className="font-semibold text-lg">{item.name}</h3>
-                <p className="text-pink-600 font-bold">₹{item.price}</p>
+                <p className="text-buttons font-bold">₹{item.price}</p>
               </div>
             </div>
 
@@ -61,7 +62,7 @@ function Cart() {
       </div>
 
       <div className="mt-8 text-right font-semibold text-lg">
-        Total: <span className="text-pink-600">₹{totalPrice}</span>
+        Total: <span className="text-buttons">₹{totalPrice}</span>
       </div>
     </div>
   );

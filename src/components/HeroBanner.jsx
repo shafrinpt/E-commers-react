@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import logo from "../assets/imges/banner-2.jpg"; 
+import logo from "../assets/images/banner-2.jpg"; 
 
 function HeroBanner() {
   return (
@@ -43,7 +43,7 @@ function HeroBanner() {
         >
           <Link
             to="/products"
-            className="text-secondery hover:text-secondery text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-300"
+            className="text-secondery hover:text-secondery text-buttons font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-300"
           >
             Shop Now
           </Link>
