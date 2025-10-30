@@ -1,51 +1,63 @@
-import makeupImg from "../assets/images/makeup.jpg";
-// import foundationImg from "../assets/images/foundation.jpg";
 import lipstickImg from "../assets/images/lipsticks.jpg";
-// import eyelinerImg from "../assets/images/eyeliner.jpg";
-// import blushImg from "../assets/images/blush.jpg";
-// import mascaraImg from "../assets/images/mascara.jpg";
+import foundationImg from "../assets/images/makeup.jpg";
+import eyelinerImg from "../assets/images/makeup.jpg";
+import blushImg from "../assets/images/makeup.jpg";
+import mascaraImg from "../assets/images/makeup.jpg";
+import highlighterImg from "../assets/images/makeup.jpg";
 
 const makeup = [
   {
     id: 1,
     name: "Matte Lipstick",
     price: 499,
-    image: lipstickImg ,
+    brand: "Maybelline",
+    category: "Lips",
+    image: lipstickImg,
     description: "Long-lasting matte lipstick with rich color payoff.",
   },
   {
     id: 2,
     name: "Liquid Foundation",
     price: 899,
-    image: makeupImg,
+    brand: "L'Oréal",
+    category: "Face",
+    image: foundationImg,
     description: "Lightweight full-coverage foundation for all-day wear.",
   },
   {
     id: 3,
     name: "Waterproof Eyeliner",
     price: 299,
-    image: lipstickImg,
+    brand: "Lakme",
+    category: "Eyes",
+    image: eyelinerImg,
     description: "Precision tip eyeliner for perfect winged looks.",
   },
   {
     id: 4,
     name: "Blush Palette",
     price: 649,
-    image: lipstickImg,
+    brand: "MAC",
+    category: "Cheeks",
+    image: blushImg,
     description: "Vibrant blush shades to give your cheeks a natural glow.",
   },
   {
     id: 5,
     name: "Volumizing Mascara",
     price: 599,
-    image: lipstickImg,
+    brand: "Maybelline",
+    category: "Eyes",
+    image: mascaraImg,
     description: "Smudge-proof mascara for fuller, longer lashes.",
   },
   {
     id: 6,
     name: "Highlighter Stick",
     price: 549,
-    image: lipstickImg,
+    brand: "Nykaa",
+    category: "Face",
+    image: highlighterImg,
     description: "Creamy highlighter that adds instant glow to your look.",
   },
 ];

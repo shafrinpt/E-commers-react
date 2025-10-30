@@ -1,11 +1,12 @@
-import makeupImg from "../assets/images/makeup.jpg";
 import skinCare from "../assets/images/skincare.jpg";
-import perfume from "../assets/images/perfume.jpg";
 
 const skincare = [
   {
     id: 1,
     name: "Hydrating Face Cream",
+    brand: "GlowNaturals",
+    category: "Moisturizer",
+    skinType: "Dry",
     price: 699,
     image: skinCare,
     description: "Hydrating face cream that nourishes and refreshes your skin.",
@@ -13,6 +14,9 @@ const skincare = [
   {
     id: 2,
     name: "Aloe Vera Moisturizer",
+    brand: "PureLeaf",
+    category: "Moisturizer",
+    skinType: "All Skin Types",
     price: 499,
     image: skinCare,
     description: "Lightweight moisturizer perfect for daily skincare routine.",
@@ -20,6 +24,9 @@ const skincare = [
   {
     id: 3,
     name: "Vitamin C Serum",
+    brand: "RadiantGlow",
+    category: "Serum",
+    skinType: "Normal",
     price: 899,
     image: skinCare,
     description: "Brightens and revitalizes your skin with natural ingredients.",
@@ -27,6 +34,9 @@ const skincare = [
   {
     id: 4,
     name: "Rose Face Mist",
+    brand: "NatureEssence",
+    category: "Toner",
+    skinType: "Sensitive",
     price: 399,
     image: skinCare,
     description: "Gives your skin a fresh glow and keeps it hydrated all day.",
@@ -34,6 +44,9 @@ const skincare = [
   {
     id: 5,
     name: "Night Repair Cream",
+    brand: "DermaCare",
+    category: "Cream",
+    skinType: "Dry",
     price: 1099,
     image: skinCare,
     description: "Rejuvenates your skin overnight with natural extracts.",
@@ -41,6 +54,9 @@ const skincare = [
   {
     id: 6,
     name: "Sunscreen SPF 50",
+    brand: "SunGuard",
+    category: "Sunscreen",
+    skinType: "Oily",
     price: 599,
     image: skinCare,
     description: "Protects your skin from harmful UV rays with SPF 50.",
