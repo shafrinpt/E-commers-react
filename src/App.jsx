@@ -12,6 +12,7 @@ import Skincare from './pages/Skincare'
 import SkincareDetail from './pages/SkincareDetail'
 import MakeupDetail from './pages/MakeupDetail'
 import PerfumeDetail from './pages/PerfumeDetail'
+import Shafrin from './pages/Shafrin'
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/makeup/:id" element={<MakeupDetail/>} />
           <Route path="/perfume/:id" element={<PerfumeDetail />} />
              <Route path='/cart' element={<Cart/>} />
+               <Route path='/shafrin' element={<Shafrin/>} />
       </Routes>
       <Footer />
    </Router>

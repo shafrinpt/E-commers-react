@@ -83,7 +83,7 @@ Please confirm my order.`;
 
           <button
             onClick={handleBuyNow}
-            className="bg-green-700 hover:bg-green-800 text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-lg transition-all duration-300 w-full sm:w-auto"
+            className="bg-[#A07A51] hover:bg-[#ab9e8f] text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-lg transition-all duration-300 w-full sm:w-auto"
           >
              Buy Now 
           </button>

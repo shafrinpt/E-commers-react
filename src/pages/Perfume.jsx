@@ -134,7 +134,7 @@ function Perfume() {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-[320px] object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-[380px] object-contain object-center transform group-hover:scale-105 transition-transform duration-500 bg-white"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
               </Link>

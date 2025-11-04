@@ -103,8 +103,7 @@ function Cart() {
       {/* Total + Checkout Buttons */}
       <div className="mt-8 flex flex-col sm:flex-row justify-between items-center">
         <div className="font-semibold text-lg">
-          Total:{" "}
-          <span className="text-amber-900 font-bold">₹{totalPrice}</span>
+          Total: <span className="text-amber-900 font-bold">₹{totalPrice}</span>
         </div>
 
         <div className="flex gap-3 mt-4 sm:mt-0">

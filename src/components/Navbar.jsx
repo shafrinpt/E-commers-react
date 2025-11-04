@@ -68,14 +68,14 @@ function Navbar() {
           <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
             Products
           </Link>
-          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
-            Products
+          <Link to="/skincare" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Skincare
           </Link>
-          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
-            Products
+          <Link to="/makeup" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Makeup
           </Link>
-          <Link to="/products" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
-            Products
+          <Link to="/perfume" onClick={() => setIsOpen(false)} className="hover:text-amber-700">
+            Perfume
           </Link>
         </div>
       )}

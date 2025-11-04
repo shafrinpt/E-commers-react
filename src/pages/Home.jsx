@@ -28,68 +28,73 @@ function Home() {
           FEATURED CATEGORIES
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
-          <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
+          <Link to="/makeup" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/makeup.jpg"
               alt="Makeup"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Makeup</h3>
-          </div>
-          <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
+          </Link>
+          <Link to="skincare" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/skincare.jpg"
               alt="Skincare"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Skincare</h3>
-          </div>
-          <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
+          </Link>
+          <Link to="perfume" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/perfume.jpg"
               alt="Perfume"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Perfume</h3>
-          </div>
+          </Link>
         </div>
       </section>
 
       {/* 🛍️ 3. Top Products / Best Sellers */}
       <section className="py-14 bg-amber-50 px-6 text-center">
-        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
-          BEST SELLER
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/lipsticks.jpg"
-              alt="Lipstick"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">M.A.C MACximal Matte-Lipstick</h3>
-            <p className="text-sm text-gray-600 mt-1">₹2550</p>
-          </div>
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/moiturizer.jpg"
-              alt="Moisturizer"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">COSRX Advanced Snail Serum</h3>
-            <p className="text-sm text-gray-600 mt-1">₹1450</p>
-          </div>
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/perfume-luxe.jpg"
-              alt="Perfume"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">Jo Malone</h3>
-            <p className="text-sm text-gray-600 mt-1">₹15,741</p>
-          </div>
-        </div>
-      </section>
+  <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
+    BEST SELLER
+  </h2>
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
+    {/* Product 1 */}
+    <Link to="/products/13" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/lipsticks.jpg"
+        alt="Lipstick"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium">M.A.C MACximal Matte-Lipstick</h3>
+      <p className="text-sm text-gray-600 mt-1">₹2550</p>
+    </Link>
+
+    {/* Product 2 */}
+    <Link to="/products/16" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/moiturizer.jpg"
+        alt="Moisturizer"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium">COSRX Advanced Snail Serum</h3>
+      <p className="text-sm text-gray-600 mt-1">₹1450</p>
+    </Link>
+
+    {/* Product 3 */}
+    <Link to="/products/7" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/perfume-luxe.jpg"
+        alt="Perfume"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium">Jo Malone</h3>
+      <p className="text-sm text-gray-600 mt-1">₹15,741</p>
+    </Link>
+  </div>
+</section>
 
        {/* 💄 2. new launches */}
       <section className="py-14 px-6  text-center">
@@ -127,39 +132,42 @@ function Home() {
 
       {/* 🛍️ 3. Elite Edition */}
       <section className="py-14 bg-amber-50 px-6 text-center">
-        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
-          ELITE EDITION
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/lipsticks.jpg"
-              alt="Lipstick"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">M.A.C MACximal Matte-Lipstick</h3>
-            <p className="text-sm text-gray-600 mt-1">₹2550</p>
-          </div>
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/moiturizer.jpg"
-              alt="Moisturizer"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">COSRX Advanced Snail Serum</h3>
-            <p className="text-sm text-gray-600 mt-1">₹1450</p>
-          </div>
-          <div className="p-4 bg-white rounded-xl shadow hover:shadow-md transition">
-            <img
-              src="src/assets/images/perfume-luxe.jpg"
-              alt="Perfume"
-              className="rounded-lg mb-4 w-full h-76 object-cover"
-            />
-            <h3 className="text-lg font-medium">Jo Malone</h3>
-            <p className="text-sm text-gray-600 mt-1">₹15,741</p>
-          </div>
-        </div>
-      </section>
+  <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
+    ELITE EDITION
+  </h2>
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
+    
+    <Link to="/products/14" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/makeup/blush-pixi.jpg"
+        alt="Blush"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium">Pixi By Petra On The Glow Blush</h3>
+      <p className="text-sm text-gray-600 mt-1">₹1950</p>
+    </Link>
+
+    <Link to="/products/4" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/skicare/toner.jpg"
+        alt="Moisturizer"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium">Madagascar Centella Toning Toner</h3>
+      <p className="text-sm text-gray-600 mt-1">₹1527</p>
+    </Link>
+
+    <Link to="/products/12" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
+      <img
+        src="src/assets/images/perfume/dior-perfume.jpg"
+        alt="Perfume"
+        className="rounded-lg mb-4 w-full h-76 object-cover"
+      />
+      <h3 className="text-lg font-medium"> Miss Dior</h3>
+      <p className="text-sm text-gray-600 mt-1">₹12100</p>
+    </Link>
+  </div>
+</section>
 
       {/* {about-us} */}
       <section className="bg-[#c2ad9f]  text-white py-12 px-6 md:px-16 rounded-t-3xl">
