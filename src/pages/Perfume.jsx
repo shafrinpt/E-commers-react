@@ -1,43 +1,106 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
-import perfumeData from "../data/perfume";
+import axios from "axios";
+import { toast } from "react-toastify"; // ✅ Only import toast (no ToastContainer here)
 
 function Perfume() {
   const dispatch = useDispatch();
 
-  // ✅ Filter States
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedForWhom, setSelectedForWhom] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedForWhom, setSelectedForWhom] = useState("");
   const [selectedConcentration, setSelectedConcentration] = useState("");
   const [priceRange, setPriceRange] = useState(20000);
 
-  // ✅ Dynamic filtering logic
-  const filteredProducts = perfumeData.filter((product) => {
-    const matchSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchForWhom =
-      selectedForWhom === "" || product.forWhom === selectedForWhom;
-    const matchBrand =
-      selectedBrand === "" || product.brand === selectedBrand;
-    const matchConcentration =
-      selectedConcentration === "" ||
-      product.concentration === selectedConcentration;
-    const matchPrice = product.price <= priceRange;
+  // ✅ Fetch perfumes from backend (MongoDB)
+  useEffect(() => {
+    const fetchPerfumes = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
+        );
 
-    return (
-      matchSearch && matchForWhom && matchBrand && matchConcentration && matchPrice
-    );
-  });
+        const perfumes = res.data.filter(
+          (item) =>
+            item.category &&
+            item.category.toLowerCase().includes("perfume")
+        );
+
+        setProducts(perfumes);
+
+        // ✅ Success message
+        toast.success("✨ Perfume collection loaded successfully!", {
+          position: "top-right",
+        });
+      } catch (err) {
+        console.error("Error fetching perfumes:", err);
+
+        // ❌ Error message
+        toast.error("⚠️ Failed to load perfumes from server!", {
+          position: "top-right",
+        });
+      }
+    };
+
+    fetchPerfumes();
+  }, []);
+
+  // ✅ Dynamic filtering
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchSearch = product.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchBrand =
+        selectedBrand === "" || product.brand === selectedBrand;
+      const matchForWhom =
+        selectedForWhom === "" || product.forWhom === selectedForWhom;
+      const matchConcentration =
+        selectedConcentration === "" ||
+        product.concentration === selectedConcentration;
+      const matchPrice = Number(product.price) <= priceRange;
+
+      return (
+        matchSearch &&
+        matchBrand &&
+        matchForWhom &&
+        matchConcentration &&
+        matchPrice
+      );
+    });
+  }, [products, searchTerm, selectedBrand, selectedForWhom, selectedConcentration, priceRange]);
 
   // ✅ Unique filter options
-  const forWhomOptions = [...new Set(perfumeData.map((p) => p.forWhom))];
-  const brands = [...new Set(perfumeData.map((p) => p.brand))];
-  const concentrations = [...new Set(perfumeData.map((p) => p.concentration))];
+  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
+  const forWhomOptions = [
+    ...new Set(products.map((p) => p.forWhom).filter(Boolean)),
+  ];
+  const concentrations = [
+    ...new Set(products.map((p) => p.concentration).filter(Boolean)),
+  ];
+
+  // ✅ Add to Cart
+  const handleAddToCart = (product) => {
+    try {
+      dispatch(addToCart({ ...product, category: "Perfume", quantity: 1 }));
+
+      // ✅ Success toast
+      toast.success(`🛒 ${product.name} added to cart!`, {
+        position: "top-right",
+      });
+    } catch (err) {
+      console.error("Add to cart error:", err);
+
+      // ❌ Error toast
+      toast.error("❌ Something went wrong while adding to cart!", {
+        position: "top-right",
+      });
+    }
+  };
 
   return (
     <div className="px-4 md:px-16 py-10">
@@ -113,7 +176,7 @@ function Perfume() {
           <input
             type="range"
             min="500"
-            max="2000"
+            max="20000"
             step="100"
             value={priceRange}
             onChange={(e) => setPriceRange(e.target.value)}
@@ -127,14 +190,14 @@ function Perfume() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {filteredProducts.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
-              <Link to={`/perfume/${product.id}`} className="block relative">
+              <Link to={`/perfume/${product._id}`} className="block relative">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-[380px] object-contain object-center transform group-hover:scale-105 transition-transform duration-500 bg-white"
+                  className="w-full h-[380px] object-contain transform group-hover:scale-105 transition-transform duration-500 bg-white"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
               </Link>
@@ -152,18 +215,14 @@ function Perfume() {
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button
-                    onClick={() =>
-                      dispatch(
-                        addToCart({ ...product, category: "perfume", quantity: 1 })
-                      )
-                    }
+                    onClick={() => handleAddToCart(product)}
                     className="bg-amber-900 hover:bg-amber-800 text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     Add to Cart
                   </button>
 
                   <Link
-                    to={`/perfume/${product.id}`}
+                    to={`/perfume/${product._id}`}
                     className="border border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     View Details

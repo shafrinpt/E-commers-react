@@ -1,42 +1,88 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
-import makeup from "../data/makeup";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Makeup() {
   const dispatch = useDispatch();
 
-  // ✅ Filter States
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [priceRange, setPriceRange] = useState(5000); // ✅ start from max price, not 20000
+  const [priceRange, setPriceRange] = useState(5000);
 
-  // ✅ Dynamic filtering logic
-  const filteredProducts = makeup.filter((product) => {
-    const matchSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchBrand = selectedBrand === "" || product.brand === selectedBrand;
-    const matchCategory =
-      selectedCategory === "" || product.category === selectedCategory;
-    const matchPrice = product.price <= priceRange; // ✅ numeric comparison
+  // ✅ Fetch makeup items from backend
+  useEffect(() => {
+    const fetchMakeup = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
+        );
 
-    return matchSearch && matchBrand && matchCategory && matchPrice;
-  });
+        // ✅ Only show products in "makeup" category
+        const makeupItems = res.data.filter(
+          (item) =>
+            item.category && item.category.toLowerCase().includes("makeup")
+        );
 
-  // ✅ Unique filter options
-  const brands = [...new Set(makeup.map((p) => p.brand))];
-  const categories = [...new Set(makeup.map((p) => p.category))];
+        setProducts(makeupItems);
 
-  // ✅ Check if any filter is applied
-  const hasFilterApplied =
-    searchTerm || selectedBrand || selectedCategory || priceRange < 1500;
+        // ✅ Success toast
+        toast.success("💄 Makeup collection loaded successfully!", {
+          position: "top-right",
+        });
+      } catch (err) {
+        console.error("Error fetching makeup items:", err);
 
-  // ✅ Decide what to show: all or filtered
-  const visibleProducts = hasFilterApplied ? filteredProducts : makeup;
+        // ❌ Error toast
+        toast.error("⚠️ Failed to load makeup products from server!", {
+          position: "top-right",
+        });
+      }
+    };
+
+    fetchMakeup();
+  }, []);
+
+  // ✅ Dynamic filtering
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchSearch = product.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchBrand =
+        selectedBrand === "" ||
+        (product.brand && product.brand === selectedBrand);
+      const matchCategory =
+        selectedCategory === "" ||
+        (product.category && product.category === selectedCategory);
+      const matchPrice = Number(product.price) <= priceRange;
+
+      return matchSearch && matchBrand && matchCategory && matchPrice;
+    });
+  }, [products, searchTerm, selectedBrand, selectedCategory, priceRange]);
+
+  // ✅ Unique filters
+  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+
+  // ✅ Add to Cart + Toastify
+  const handleAddToCart = (product) => {
+    try {
+      dispatch(addToCart({ ...product, category: "makeup", quantity: 1 }));
+
+      toast.success(`🛍️ ${product.name} added to cart!`, {
+        position: "top-right",
+      });
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      toast.error("❌ Could not add item to cart!", { position: "top-right" });
+    }
+  };
 
   return (
     <div className="px-4 md:px-16 py-10">
@@ -98,24 +144,24 @@ function Makeup() {
           <input
             type="range"
             min="100"
-            max="1500"
-            step="50"
+            max="5000"
+            step="100"
             value={priceRange}
-            onChange={(e) => setPriceRange(Number(e.target.value))} // ✅ ensure it's a number
+            onChange={(e) => setPriceRange(Number(e.target.value))}
             className="w-full accent-amber-900"
           />
         </div>
       </div>
 
       {/* ✅ Products Grid */}
-      {visibleProducts.length > 0 ? (
+      {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-          {visibleProducts.map((product) => (
+          {filteredProducts.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="group bg-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
-              <Link to={`/makeup/${product.id}`} className="block relative">
+              <Link to={`/makeup/${product._id}`} className="block relative">
                 <div className="flex items-center justify-center bg-white h-[320px]">
                   <img
                     src={product.image}
@@ -123,7 +169,6 @@ function Makeup() {
                     className="h-[280px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
               </Link>
 
@@ -142,22 +187,14 @@ function Makeup() {
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button
-                    onClick={() =>
-                      dispatch(
-                        addToCart({
-                          ...product,
-                          category: "makeup",
-                          quantity: 1,
-                        })
-                      )
-                    }
+                    onClick={() => handleAddToCart(product)}
                     className="bg-amber-900 hover:bg-amber-800 text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     Add to Cart
                   </button>
 
                   <Link
-                    to={`/makeup/${product.id}`}
+                    to={`/makeup/${product._id}`}
                     className="border border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     View Details
@@ -169,7 +206,7 @@ function Makeup() {
         </div>
       ) : (
         <p className="text-center text-gray-600 text-lg mt-10">
-          No products found.
+          No makeup products found.
         </p>
       )}
     </div>

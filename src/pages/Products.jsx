@@ -1,83 +1,130 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
-import products from "../data/products";
-
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Products() {
   const dispatch = useDispatch();
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // ✅ Fetch Products from MongoDB
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
+        );
+        setProducts(res.data);
+        toast.success("🛍️ Products loaded successfully!", {
+          position: "top-right",
+        });
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        toast.error("⚠️ Failed to load products. Please try again later.", {
+          position: "top-right",
+        });
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // ✅ Search filter logic
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const name = product.name || "";
-      return name.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-  }, [searchTerm]);
+    if (!searchTerm.trim()) return products;
+    return products.filter((product) =>
+      product.name?.toLowerCase().includes(searchTerm.toLowerCase().trim())
+    );
+  }, [searchTerm, products]);
+
+  // ✅ Handle Add to Cart
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({ ...product, quantity: 1 }));
+    toast.success(`🛒 ${product.name} added to cart!`, { position: "top-right" });
+  };
 
   return (
     <div className="px-4 md:px-16 py-10">
-      <h2 className="text-3xl font-bold text-secondery mb-8 text-center">
+      <h2 className="text-3xl font-bold text-amber-900 mb-8 text-center">
         Our Products
       </h2>
 
-      {/* Search Bar */}
+      {/* ✅ Search Bar */}
       <div className="flex justify-center mb-10">
         <div className="relative w-full md:w-1/2">
-          <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+          />
           <input
             type="text"
             placeholder="Search for products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-900"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-900 focus:outline-none"
           />
         </div>
       </div>
 
-      {/* Products Grid */}
+      {/* ✅ Products Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {filteredProducts.map((product) => (
             <div
-  key={product.id}
-  className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 flex flex-col items-center text-center"
->
-  <Link
-    to={`/products/${product.id}`}
-    className="w-full flex justify-center items-center"
-  >
-    <img
-  src={product.image}
-  alt={product.name}
-  className="h-[320px] w-auto object-contain rounded-xl mb-4" // ✅ Increased size
-/>
+              key={product._id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 flex flex-col items-center text-center"
+            >
+              {/* ✅ Product Image */}
+              <Link
+                to={`/products/${product._id}`}
+                className="w-full flex justify-center items-center"
+              >
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-[320px] w-auto object-contain rounded-xl mb-4"
+                />
+              </Link>
 
-  </Link>
+              {/* ✅ Product Name */}
+              <Link
+                to={`/products/${product._id}`}
+                className="text-xl font-semibold text-gray-800 hover:text-amber-900 mb-2"
+              >
+                {product.name}
+              </Link>
 
-  <Link
-    to={`/products/${product.id}`}
-    className="text-xl font-semibold text-gray-800 hover:text-buttons mb-2"
-  >
-    {product.name}
-  </Link>
+              {/* ✅ Price */}
+              <p className="text-amber-700 font-bold text-lg mb-3">
+                ₹{product.price}
+              </p>
 
-  <p className="text-secondery font-bold text-lg mb-2">₹{product.price}</p>
+              {/* ✅ Inline Buttons */}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="bg-amber-900 hover:bg-amber-800 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Add to Cart
+                </button>
 
-  <button
-    onClick={() => dispatch(addToCart({ ...product, quantity: 1 }))}
-    className="mt-2 bg-amber-900 hover:bg-amber-800 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
-  >
-    Add to Cart
-  </button>
-</div>
-
+                <Link
+                  to={`/products/${product._id}`}
+                  className="border border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-600">No products found for “{searchTerm}”.</p>
+        <p className="text-center text-gray-600 mt-8">
+          No products found for “{searchTerm}”.
+        </p>
       )}
     </div>
   );

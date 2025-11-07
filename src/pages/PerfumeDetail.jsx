@@ -1,42 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
-import perfume from "../data/perfume";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function PerfumeDetail() {
   const { id } = useParams();
-  const product = perfume.find((p) => p.id === parseInt(id));
+  const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const dispatch = useDispatch();
 
-  if (!product) {
-    return <p className="text-center mt-10 text-gray-600">Product not found.</p>;
-  }
+  // ✅ Fetch perfume detail from backend
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items/${id}`
+        );
+        setProduct(res.data);
+        toast.success("✨ Product details loaded successfully!");
+      } catch (err) {
+        console.error("Error fetching perfume detail:", err);
+        toast.error("❌ Failed to load perfume details.");
+      }
+    };
 
+    fetchProduct();
+  }, [id]);
+
+  // ✅ Add to cart
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, quantity }));
+    try {
+      dispatch(addToCart({ ...product, quantity }));
+      toast.success(`🛒 ${product.name} added to cart!`);
+    } catch (err) {
+      toast.error("❌ Could not add item to cart!");
+    }
   };
 
+  // ✅ WhatsApp Buy Now
   const handleBuyNow = () => {
+    if (!product) return;
+
     const message = `🌸 *Order Details:*
 --------------------------------
 ✨ *Product:* ${product.name}
 💰 *Price:* ₹${product.price}
 📦 *Quantity:* ${quantity}
 💵 *Total:* ₹${product.price * quantity}
-🖼️ *Image:* ${window.location.origin}${product.image}
+🖼️ *Image:* ${product.image}
 
 Please confirm my order.`;
 
-    const phoneNumber = "911234567890"; // Replace with your WhatsApp number (include country code)
+    const phoneNumber = "918891278251"; // replace with your WhatsApp number (include country code)
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 
+  if (!product) {
+    return <p className="text-center mt-10 text-gray-600">Loading product...</p>;
+  }
+
   return (
     <div className="px-4 md:px-20 py-10 flex flex-col md:flex-row gap-10 items-center md:items-start bg-amber-50 min-h-[80vh]">
-      {/* Product Image */}
+      {/* ✅ Product Image */}
       <div className="w-full md:w-1/2 flex justify-center">
         <img
           src={product.image}
@@ -45,7 +73,7 @@ Please confirm my order.`;
         />
       </div>
 
-      {/* Product Info */}
+      {/* ✅ Product Info */}
       <div className="md:w-1/2 flex flex-col justify-center gap-5 text-center md:text-left">
         <h1 className="text-4xl sm:text-5xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-900 to-yellow-700 tracking-wide drop-shadow-md">
           {product.name}
@@ -59,7 +87,7 @@ Please confirm my order.`;
           {product.description}
         </p>
 
-        {/* Quantity Selector */}
+        {/* ✅ Quantity Selector */}
         <div className="flex justify-center md:justify-start items-center gap-5 mt-4">
           <button
             onClick={() => quantity > 1 && setQuantity(quantity - 1)}
@@ -76,7 +104,7 @@ Please confirm my order.`;
           </button>
         </div>
 
-        {/* Buttons */}
+        {/* ✅ Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 mt-8 justify-center md:justify-start">
           <button
             onClick={handleAddToCart}
@@ -93,7 +121,7 @@ Please confirm my order.`;
           </button>
         </div>
 
-        {/* Back Link */}
+        {/* ✅ Back Link */}
         <Link
           to="/perfume"
           className="mt-8 inline-block text-amber-800 text-lg font-medium hover:underline"

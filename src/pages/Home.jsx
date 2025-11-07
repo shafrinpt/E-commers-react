@@ -1,7 +1,29 @@
+import { useEffect, useState } from "react";
 import HeroBanner from "../components/HeroBanner";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Home() {
+  const [products, setProducts] = useState([]);
+
+  // ✅ Fetch all products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
+        );
+        setProducts(res.data);
+        toast.success("✨ Products loaded successfully!", { position: "top-right" });
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        toast.error("⚠️ Failed to load products.", { position: "top-right" });
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="w-full bg-white text-amber-900">
       {/* ✅ Hero Banner */}
@@ -9,22 +31,20 @@ function Home() {
 
       {/* 🌟 1. Special Offer Section */}
       <section className="bg-[#fdf6ec] text-amber-900 flex items-center justify-center gap-6 py-8 px-8 rounded-b-3xl mt-8">
-  <p className="text-4xl font-bold tracking-wide">
-    🎉 Get <span className="text-amber-800 font-extrabold">20% OFF</span> on all skincare products!
-  </p>
-  <Link
-    to="/products"
-    className="bg-amber-900 hover:bg-amber-800 text-white text-lg font-semibold px-6 py-3 rounded-lg transition-all"
-  >
-    Shop Now
-  </Link>
-</section>
+        <p className="text-4xl font-bold tracking-wide">
+          🎉 Get <span className="text-amber-800 font-extrabold">20% OFF</span> on all skincare products!
+        </p>
+        <Link
+          to="/products"
+          className="bg-amber-900 hover:bg-amber-800 text-white text-lg font-semibold px-6 py-3 rounded-lg transition-all"
+        >
+          Shop Now
+        </Link>
+      </section>
 
-
-
-      {/* 💄 2. Featured Categories */}
-      <section className="py-14 px-6  text-center">
-        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest  mb-8 text-amber-900">
+      {/* 💄 2. Featured Categories (STATIC) */}
+      <section className="py-14 px-6 text-center">
+        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
           FEATURED CATEGORIES
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
@@ -36,7 +56,7 @@ function Home() {
             />
             <h3 className="text-xl font-medium text-amber-900">Makeup</h3>
           </Link>
-          <Link to="skincare" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
+          <Link to="/skincare" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/skincare.jpg"
               alt="Skincare"
@@ -44,7 +64,7 @@ function Home() {
             />
             <h3 className="text-xl font-medium text-amber-900">Skincare</h3>
           </Link>
-          <Link to="perfume" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
+          <Link to="/perfume" className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/perfume.jpg"
               alt="Perfume"
@@ -55,57 +75,47 @@ function Home() {
         </div>
       </section>
 
-      {/* 🛍️ 3. Top Products / Best Sellers */}
+      {/* 🛍️ 3. Best Seller (Dynamic from Backend) */}
       <section className="py-14 bg-amber-50 px-6 text-center">
-  <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
-    BEST SELLER
-  </h2>
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
-    {/* Product 1 */}
-    <Link to="/products/13" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/lipsticks.jpg"
-        alt="Lipstick"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium">M.A.C MACximal Matte-Lipstick</h3>
-      <p className="text-sm text-gray-600 mt-1">₹2550</p>
-    </Link>
+        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
+          BEST SELLER
+        </h2>
 
-    {/* Product 2 */}
-    <Link to="/products/16" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/moiturizer.jpg"
-        alt="Moisturizer"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium">COSRX Advanced Snail Serum</h3>
-      <p className="text-sm text-gray-600 mt-1">₹1450</p>
-    </Link>
+        {products.length === 0 ? (
+          <p className="text-gray-600">Loading best sellers...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {products
+              .slice(0, 3) // ✅ first 3 products
+              .map((item) => (
+                <Link
+                  key={item._id}
+                  to={`/products/${item._id}`}
+                  className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="rounded-lg mb-4 w-full h-76 object-cover"
+                  />
+                  <h3 className="text-lg font-medium">{item.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">₹{item.price}</p>
+                </Link>
+              ))}
+          </div>
+        )}
+      </section>
 
-    {/* Product 3 */}
-    <Link to="/products/7" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/perfume-luxe.jpg"
-        alt="Perfume"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium">Jo Malone</h3>
-      <p className="text-sm text-gray-600 mt-1">₹15,741</p>
-    </Link>
-  </div>
-</section>
-
-       {/* 💄 2. new launches */}
-      <section className="py-14 px-6  text-center">
-        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest  mb-8 text-amber-900">
+      {/* 💄 4. New Launches (STATIC) */}
+      <section className="py-14 px-6 text-center">
+        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
           NEW LAUNCHES
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
           <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/dior.jpg"
-              alt="Makeup"
+              alt="Dior"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Dior</h3>
@@ -113,7 +123,7 @@ function Home() {
           <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/beauty-and-j.jpg"
-              alt="Skincare"
+              alt="Beauty and Joseon"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Beauty and Joseon</h3>
@@ -121,7 +131,7 @@ function Home() {
           <div className="p-4 bg-amber-50 rounded-xl shadow hover:shadow-md transition">
             <img
               src="src/assets/images/prada.jpg"
-              alt="Perfume"
+              alt="Prada"
               className="rounded-lg mx-auto mb-4 w-full h-56 object-cover"
             />
             <h3 className="text-xl font-medium text-amber-900">Prada</h3>
@@ -129,81 +139,74 @@ function Home() {
         </div>
       </section>
 
-
-      {/* 🛍️ 3. Elite Edition */}
+      {/* 💎 5. Elite Edition (Dynamic from Backend — shows newest) */}
       <section className="py-14 bg-amber-50 px-6 text-center">
-  <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
-    ELITE EDITION
-  </h2>
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
-    
-    <Link to="/products/14" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/makeup/blush-pixi.jpg"
-        alt="Blush"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium">Pixi By Petra On The Glow Blush</h3>
-      <p className="text-sm text-gray-600 mt-1">₹1950</p>
-    </Link>
-
-    <Link to="/products/4" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/skicare/toner.jpg"
-        alt="Moisturizer"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium">Madagascar Centella Toning Toner</h3>
-      <p className="text-sm text-gray-600 mt-1">₹1527</p>
-    </Link>
-
-    <Link to="/products/12" className="p-4 bg-white rounded-xl shadow hover:shadow-md transition block">
-      <img
-        src="src/assets/images/perfume/dior-perfume.jpg"
-        alt="Perfume"
-        className="rounded-lg mb-4 w-full h-76 object-cover"
-      />
-      <h3 className="text-lg font-medium"> Miss Dior</h3>
-      <p className="text-sm text-gray-600 mt-1">₹12100</p>
-    </Link>
-  </div>
-</section>
-
-      {/* {about-us} */}
-      <section className="bg-[#c2ad9f]  text-white py-12 px-6 md:px-16 rounded-t-3xl">
-  <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10">
-    
-    {/* Left Side - Image */}
-    <div className="w-full md:w-1/2 flex justify-center">
-      <img
-        src="src/assets/images/about-us.jpg" // 🔥 Replace with your own image
-        alt="About BlushBay"
-        className="rounded-2xl shadow-lg w-full max-w-md object-cover"
-      />
-    </div>
-
-    {/* Right Side - Text */}
-    <div className="w-full md:w-1/2 flex flex-col gap-2 text-black space-y-4">
-      <h2 className="text-4xl font-stretch-semi-condensed bold tracking-widest mb-3 text-white">Ready to take your blush game to cloud nine?</h2>
-      <p className="text-lg leading-relaxed">
-        At <span className="font-semibold text-amber-900 text-secondary">BlushBay</span>, we believe in
-        Blush brighter, care deeper with our Cloud Nine Niacinamide Glow Blush that gives your cheeks the look straight out of a dream. Infused with 8 botanical oils, Niacinamide, Kojic Acid, and Vitamin C, it pampers your skin while giving you that lit-from-within flush. Just a dab of this weightless formula gives you glowing, radiant cheeks. Choose from playful shades like peachy pink or flirty raspberry, made to flatter every Indian skin tone. Glow-getter, are you in?
-      </p>
-      <p className="text-lg leading-relaxed">
-        From skincare essentials to luxury perfumes, we’re committed to offering
-        cruelty-free and eco-conscious products that make you feel confident,
-        beautiful, and loved in your own skin.
-      </p>
-    </div>
-  </div>
-</section>
-
-
-      {/* ⭐ 4. Customer Reviews */}
-      <section className="py-14 px-6 text-center">
-        <h2 className="text-3xl font-semibold mb-8 text-amber-900">
-          Customer Reviews
+        <h2 className="text-3xl font-stretch-semi-condensed bold tracking-widest mb-8 text-amber-900">
+          ELITE EDITION
         </h2>
+
+        {products.length === 0 ? (
+          <p className="text-gray-600">Loading elite edition...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {products
+              .slice(-3) // ✅ 3 most recently added
+              .reverse() // show latest first
+              .map((item, index) => (
+                <Link
+                  key={item._id}
+                  to={`/products/${item._id}`}
+                  className="relative p-4 bg-white rounded-xl shadow hover:shadow-md transition block"
+                >
+                  {/* Optional "New" badge for most recent product */}
+                  {index === 0 && (
+                    <span className="absolute top-3 right-3 bg-amber-900 text-white text-xs px-3 py-1 rounded-full">
+                      NEW
+                    </span>
+                  )}
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="rounded-lg mb-4 w-full h-76 object-cover"
+                  />
+                  <h3 className="text-lg font-medium">{item.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">₹{item.price}</p>
+                </Link>
+              ))}
+          </div>
+        )}
+      </section>
+
+      {/* 🌿 6. About Us (STATIC) */}
+      <section className="bg-[#c2ad9f] text-white py-12 px-6 md:px-16 rounded-t-3xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10">
+          <div className="w-full md:w-1/2 flex justify-center">
+            <img
+              src="src/assets/images/about-us.jpg"
+              alt="About BlushBay"
+              className="rounded-2xl shadow-lg w-full max-w-md object-cover"
+            />
+          </div>
+          <div className="w-full md:w-1/2 flex flex-col gap-2 text-black space-y-4">
+            <h2 className="text-4xl font-stretch-semi-condensed bold tracking-widest mb-3 text-white">
+              Ready to take your blush game to cloud nine?
+            </h2>
+            <p className="text-lg leading-relaxed">
+              At <span className="font-semibold text-amber-900">BlushBay</span>, we believe in
+              Blush brighter, care deeper with our Cloud Nine Niacinamide Glow Blush that gives your cheeks
+              the look straight out of a dream.
+            </p>
+            <p className="text-lg leading-relaxed">
+              From skincare essentials to luxury perfumes, we’re committed to offering cruelty-free
+              and eco-conscious products that make you feel confident, beautiful, and loved.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ⭐ 7. Customer Reviews (STATIC) */}
+      <section className="py-14 px-6 text-center">
+        <h2 className="text-3xl font-semibold mb-8 text-amber-900">Customer Reviews</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div className="p-6 bg-amber-50 rounded-xl shadow">
             <p className="italic text-gray-700 mb-3">

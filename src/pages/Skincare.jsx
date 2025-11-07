@@ -1,40 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
-import skincare from "../data/skincare";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function Skincare() {
   const dispatch = useDispatch();
 
-  // ✅ Filter States
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSkinType, setSelectedSkinType] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [priceRange, setPriceRange] = useState(5000);
 
-  // ✅ Dynamic filtering logic
-  const filteredProducts = skincare.filter((product) => {
-    const matchSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchSkinType =
-      selectedSkinType === "" || product.skinType === selectedSkinType;
-    const matchBrand =
-      selectedBrand === "" || product.brand === selectedBrand;
-    const matchCategory =
-      selectedCategory === "" || product.category === selectedCategory;
-    const matchPrice = product.price <= priceRange;
+  // ✅ Fetch skincare products from backend
+  useEffect(() => {
+    const fetchSkincare = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
+        );
 
-    return matchSearch && matchSkinType && matchBrand && matchCategory && matchPrice;
-  });
+        const skincareItems = res.data.filter(
+          (item) =>
+            item.category && item.category.toLowerCase().includes("skincare")
+        );
 
-  // ✅ Unique filter options from data
-  const skinTypes = [...new Set(skincare.map((p) => p.skinType))];
-  const brands = [...new Set(skincare.map((p) => p.brand))];
-  const categories = [...new Set(skincare.map((p) => p.category))];
+        setProducts(skincareItems);
+        toast.success("🌿 Skincare products loaded successfully!", {
+          position: "top-right",
+        });
+      } catch (err) {
+        console.error("Error fetching skincare products:", err);
+        toast.error("❌ Failed to load skincare products!", {
+          position: "top-right",
+        });
+      }
+    };
+
+    fetchSkincare();
+  }, []);
+
+  // ✅ Dynamic filtering
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchSearch = product.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchSkinType =
+        selectedSkinType === "" ||
+        (product.skinType && product.skinType === selectedSkinType);
+      const matchBrand =
+        selectedBrand === "" ||
+        (product.brand && product.brand === selectedBrand);
+      const matchCategory =
+        selectedCategory === "" ||
+        (product.category && product.category === selectedCategory);
+      const matchPrice = Number(product.price) <= priceRange;
+
+      return matchSearch && matchSkinType && matchBrand && matchCategory && matchPrice;
+    });
+  }, [products, searchTerm, selectedSkinType, selectedBrand, selectedCategory, priceRange]);
+
+  // ✅ Unique filter options
+  const skinTypes = [...new Set(products.map((p) => p.skinType).filter(Boolean))];
+  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+
+  // ✅ Add to cart
+  const handleAddToCart = (product) => {
+    try {
+      dispatch(addToCart({ ...product, category: "skincare", quantity: 1 }));
+      toast.success(`🧴 ${product.name} added to cart!`, { position: "top-right" });
+    } catch (err) {
+      toast.error("❌ Could not add item to cart!", { position: "top-right" });
+    }
+  };
 
   return (
     <div className="px-4 md:px-16 py-10">
@@ -113,7 +157,7 @@ function Skincare() {
             max="5000"
             step="100"
             value={priceRange}
-            onChange={(e) => setPriceRange(e.target.value)}
+            onChange={(e) => setPriceRange(Number(e.target.value))}
             className="w-full accent-amber-900"
           />
         </div>
@@ -124,16 +168,15 @@ function Skincare() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {filteredProducts.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
-              <Link to={`/skincare/${product.id}`} className="block relative">
+              <Link to={`/skincare/${product._id}`} className="block relative">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-[380px] object-contain object-center transform group-hover:scale-105 transition-transform duration-500 bg-white"
+                  className="w-full h-[380px] object-contain transform group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
               </Link>
 
               <div className="p-6 text-center">
@@ -149,16 +192,14 @@ function Skincare() {
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button
-                    onClick={() =>
-                      dispatch(addToCart({ ...product, category: "skincare", quantity: 1 }))
-                    }
+                    onClick={() => handleAddToCart(product)}
                     className="bg-amber-900 hover:bg-amber-800 text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     Add to Cart
                   </button>
 
                   <Link
-                    to={`/skincare/${product.id}`}
+                    to={`/skincare/${product._id}`}
                     className="border border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white font-semibold px-6 py-2 rounded-lg transition-all"
                   >
                     View Details
@@ -170,7 +211,7 @@ function Skincare() {
         </div>
       ) : (
         <p className="text-center text-gray-600 text-lg mt-10">
-          No products found.
+          No skincare products found.
         </p>
       )}
     </div>
