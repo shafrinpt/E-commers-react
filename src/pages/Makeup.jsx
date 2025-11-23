@@ -15,7 +15,9 @@ function Makeup() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [priceRange, setPriceRange] = useState(5000);
 
-  // ✅ Fetch makeup items from backend
+  const [showLoginPopup, setShowLoginPopup] = useState(false); // ADDED
+
+  // Fetch makeup items
   useEffect(() => {
     const fetchMakeup = async () => {
       try {
@@ -23,7 +25,6 @@ function Makeup() {
           `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
         );
 
-        // ✅ Only show products in "makeup" category
         const makeupItems = res.data.filter(
           (item) =>
             item.category && item.category.toLowerCase().includes("makeup")
@@ -31,14 +32,10 @@ function Makeup() {
 
         setProducts(makeupItems);
 
-        // ✅ Success toast
         toast.success("💄 Makeup collection loaded successfully!", {
           position: "top-right",
         });
       } catch (err) {
-        console.error("Error fetching makeup items:", err);
-
-        // ❌ Error toast
         toast.error("⚠️ Failed to load makeup products from server!", {
           position: "top-right",
         });
@@ -48,7 +45,7 @@ function Makeup() {
     fetchMakeup();
   }, []);
 
-  // ✅ Dynamic filtering
+  // Filtering
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchSearch = product.name
@@ -66,23 +63,23 @@ function Makeup() {
     });
   }, [products, searchTerm, selectedBrand, selectedCategory, priceRange]);
 
-  // ✅ Unique filters
+  // Add to Cart WITH LOGIN CHECK
+  const handleAddToCart = (product) => {
+    if (!localStorage.getItem("token")) {
+      setShowLoginPopup(true);
+      return;
+    }
+
+    dispatch(addToCart({ ...product, category: "makeup", quantity: 1 }));
+
+    toast.success(`🛍️ ${product.name} added to cart!`, {
+      position: "top-right",
+    });
+  };
+
+  // Unique filters
   const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
   const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
-
-  // ✅ Add to Cart + Toastify
-  const handleAddToCart = (product) => {
-    try {
-      dispatch(addToCart({ ...product, category: "makeup", quantity: 1 }));
-
-      toast.success(`🛍️ ${product.name} added to cart!`, {
-        position: "top-right",
-      });
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      toast.error("❌ Could not add item to cart!", { position: "top-right" });
-    }
-  };
 
   return (
     <div className="px-4 md:px-16 py-10">
@@ -91,9 +88,9 @@ function Makeup() {
         💋 Makeup Collection 💋
       </h2>
 
-      {/* ✅ Filter + Search Section */}
+      {/* Filter Section */}
       <div className="bg-white shadow-md rounded-xl p-6 mb-10 grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Search Bar */}
+        {/* Search */}
         <div className="relative col-span-2">
           <Search
             size={18}
@@ -108,7 +105,7 @@ function Makeup() {
           />
         </div>
 
-        {/* Brand */}
+        {/* Brand Filter */}
         <select
           value={selectedBrand}
           onChange={(e) => setSelectedBrand(e.target.value)}
@@ -122,7 +119,7 @@ function Makeup() {
           ))}
         </select>
 
-        {/* Category */}
+        {/* Category Filter */}
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -153,7 +150,7 @@ function Makeup() {
         </div>
       </div>
 
-      {/* ✅ Products Grid */}
+      {/* Product Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {filteredProducts.map((product) => (
@@ -169,7 +166,6 @@ function Makeup() {
                     className="h-[280px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
               </Link>
 
               <div className="p-6 text-center">
@@ -209,6 +205,37 @@ function Makeup() {
           No makeup products found.
         </p>
       )}
+
+      {/* 🔥 LOGIN POPUP */}
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-50 flex justify-center items-center backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
+            <h2 className="text-xl font-semibold text-amber-900">
+              Login Required
+            </h2>
+            <p className="text-gray-600 mt-2">
+              Please login to add items to your cart.
+            </p>
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => setShowLoginPopup(false)}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => (window.location.href = "/login")}
+                className="px-4 py-2 bg-amber-900 text-white rounded-lg hover:bg-amber-800"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* POPUP END */}
     </div>
   );
 }

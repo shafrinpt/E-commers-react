@@ -16,7 +16,9 @@ function Skincare() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [priceRange, setPriceRange] = useState(5000);
 
-  // ✅ Fetch skincare products from backend
+  const [showLoginPopup, setShowLoginPopup] = useState(false); // ADDED
+
+  // Fetch skincare products
   useEffect(() => {
     const fetchSkincare = async () => {
       try {
@@ -34,7 +36,6 @@ function Skincare() {
           position: "top-right",
         });
       } catch (err) {
-        console.error("Error fetching skincare products:", err);
         toast.error("❌ Failed to load skincare products!", {
           position: "top-right",
         });
@@ -44,7 +45,7 @@ function Skincare() {
     fetchSkincare();
   }, []);
 
-  // ✅ Dynamic filtering
+  // Dynamic filtering
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchSearch = product.name
@@ -61,23 +62,34 @@ function Skincare() {
         (product.category && product.category === selectedCategory);
       const matchPrice = Number(product.price) <= priceRange;
 
-      return matchSearch && matchSkinType && matchBrand && matchCategory && matchPrice;
+      return (
+        matchSearch &&
+        matchSkinType &&
+        matchBrand &&
+        matchCategory &&
+        matchPrice
+      );
     });
-  }, [products, searchTerm, selectedSkinType, selectedBrand, selectedCategory, priceRange]);
+  }, [
+    products,
+    searchTerm,
+    selectedSkinType,
+    selectedBrand,
+    selectedCategory,
+    priceRange,
+  ]);
 
-  // ✅ Unique filter options
-  const skinTypes = [...new Set(products.map((p) => p.skinType).filter(Boolean))];
-  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
-  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
-
-  // ✅ Add to cart
+  // Add to cart WITH LOGIN CHECK
   const handleAddToCart = (product) => {
-    try {
-      dispatch(addToCart({ ...product, category: "skincare", quantity: 1 }));
-      toast.success(`🧴 ${product.name} added to cart!`, { position: "top-right" });
-    } catch (err) {
-      toast.error("❌ Could not add item to cart!", { position: "top-right" });
+    if (!localStorage.getItem("token")) {
+      setShowLoginPopup(true);
+      return;
     }
+
+    dispatch(addToCart({ ...product, category: "skincare", quantity: 1 }));
+    toast.success(`🧴 ${product.name} added to cart!`, {
+      position: "top-right",
+    });
   };
 
   return (
@@ -87,7 +99,7 @@ function Skincare() {
         🌿 Skincare Collection 🌿
       </h2>
 
-      {/* ✅ Filter + Search Section */}
+      {/* FILTER SECTION (unchanged) */}
       <div className="bg-white shadow-md rounded-xl p-6 mb-10 grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Search Bar */}
         <div className="relative col-span-2">
@@ -111,11 +123,13 @@ function Skincare() {
           className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-900"
         >
           <option value="">All Skin Types</option>
-          {skinTypes.map((type, i) => (
-            <option key={i} value={type}>
-              {type}
-            </option>
-          ))}
+          {[...new Set(products.map((p) => p.skinType).filter(Boolean))].map(
+            (type, i) => (
+              <option key={i} value={type}>
+                {type}
+              </option>
+            )
+          )}
         </select>
 
         {/* Brand */}
@@ -125,11 +139,13 @@ function Skincare() {
           className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-900"
         >
           <option value="">All Brands</option>
-          {brands.map((brand, i) => (
-            <option key={i} value={brand}>
-              {brand}
-            </option>
-          ))}
+          {[...new Set(products.map((p) => p.brand).filter(Boolean))].map(
+            (brand, i) => (
+              <option key={i} value={brand}>
+                {brand}
+              </option>
+            )
+          )}
         </select>
 
         {/* Category */}
@@ -139,11 +155,13 @@ function Skincare() {
           className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-900"
         >
           <option value="">All Categories</option>
-          {categories.map((cat, i) => (
-            <option key={i} value={cat}>
-              {cat}
-            </option>
-          ))}
+          {[...new Set(products.map((p) => p.category).filter(Boolean))].map(
+            (cat, i) => (
+              <option key={i} value={cat}>
+                {cat}
+              </option>
+            )
+          )}
         </select>
 
         {/* Price Range */}
@@ -163,7 +181,7 @@ function Skincare() {
         </div>
       </div>
 
-      {/* ✅ Products Grid */}
+      {/* PRODUCT GRID (unchanged) */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {filteredProducts.map((product) => (
@@ -214,6 +232,37 @@ function Skincare() {
           No skincare products found.
         </p>
       )}
+
+      {/* 🔥 LOGIN POPUP STARTS HERE */}
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-50 flex justify-center items-center backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
+            <h2 className="text-xl font-semibold text-amber-900">
+              Login Required
+            </h2>
+            <p className="text-gray-600 mt-2">
+              Please login to add items to your cart.
+            </p>
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => setShowLoginPopup(false)}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => (window.location.href = "/login")}
+                className="px-4 py-2 bg-amber-900 text-white rounded-lg hover:bg-amber-800"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 🔥 LOGIN POPUP ENDS HERE */}
     </div>
   );
 }
