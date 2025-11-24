@@ -125,7 +125,7 @@ const skincare = [
   },
   {
     id: 12,
-    name: "COSRX Advanced Snail Serum",
+    name: "COSRX Advanced Moiturizer",
     brand: "Cetaphil",
     category: "Cleance",
     skinType: "Normal",

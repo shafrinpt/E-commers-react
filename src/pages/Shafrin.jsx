@@ -8,7 +8,17 @@ const Shafrin = () => {
   const [items, setItems] = useState([]);
   const [editId, setEditId] = useState(null);
 
-  // ✅ Fetch all products from backend
+  // Drive Formik initial values from state so enableReinitialize is predictable:
+  const emptyForm = {
+    name: "",
+    price: "",
+    description: "",
+    category: "",
+    brand: "",
+    image: null,
+  };
+  const [formValues, setFormValues] = useState(emptyForm);
+
   useEffect(() => {
     fetchItems();
   }, []);
@@ -22,7 +32,7 @@ const Shafrin = () => {
     }
   };
 
-  // ✅ Yup validation rules
+  // Build validation schema dynamically depending on whether we're editing
   const validationSchema = Yup.object({
     name: Yup.string()
       .min(3, "Name must be at least 3 characters")
@@ -32,15 +42,20 @@ const Shafrin = () => {
       .positive("Price must be greater than 0")
       .required("Price is required"),
     category: Yup.string().required("Category is required"),
+    brand: Yup.string().required("Brand is required"),
     description: Yup.string().max(200, "Description too long"),
-    image: Yup.mixed().required("Product image is required"),
+    // image required only when adding a new product (edit -> optional)
+    image: editId
+      ? Yup.mixed().nullable()
+      : Yup.mixed().required("Product image is required"),
   });
 
-  // ✅ Handle Submit (for both Add / Update)
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+    // Build FormData
     const data = new FormData();
     Object.entries(values).forEach(([key, value]) => {
-      if (value !== null) data.append(key, value);
+      // Append only defined values (image may be null)
+      if (value !== null && value !== undefined) data.append(key, value);
     });
 
     try {
@@ -53,34 +68,41 @@ const Shafrin = () => {
         toast.success("✅ Product added successfully!");
       }
 
-      fetchItems();
+      await fetchItems();
       resetForm();
+      setFormValues(emptyForm); // ensure form cleared
     } catch (err) {
+      console.error(err);
       toast.error("❌ Error submitting product");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ✅ Handle Edit
-  const handleEdit = (item, setValues) => {
+  // When clicking Edit, set editId AND set formValues so Formik reinitializes
+  const handleEdit = (item) => {
     setEditId(item._id);
-    setValues({
-      name: item.name,
-      price: item.price,
-      description: item.description,
-      category: item.category,
-      image: null,
+    setFormValues({
+      name: item.name ?? "",
+      price: item.price ?? "",
+      description: item.description ?? "",
+      category: item.category ?? "",
+      brand: item.brand ?? "",
+      image: null, // keep null to avoid forcing re-upload
     });
     toast.info("✏️ Edit mode activated");
   };
 
-  // ✅ Handle Delete
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/items/${id}`);
-      fetchItems();
+      await fetchItems();
       toast.success("🗑️ Product deleted successfully!");
+      // If we deleted the currently edited item, reset form
+      if (editId === id) {
+        setEditId(null);
+        setFormValues(emptyForm);
+      }
     } catch (err) {
       toast.error("❌ Error deleting product");
     }
@@ -92,22 +114,18 @@ const Shafrin = () => {
         {editId ? "Edit Product" : "Add New Product"}
       </h2>
 
-      {/* ✅ Formik Wrapper */}
       <Formik
-        initialValues={{
-          name: "",
-          price: "",
-          description: "",
-          category: "",
-          image: null,
-        }}
+        initialValues={formValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
+        enableReinitialize // reinitializes when formValues changes
+        // keep validation behaviour sensible; you can toggle these later
+        validateOnChange={false}
+        validateOnBlur={false}
       >
-        {({ setFieldValue, isSubmitting, setValues, values }) => (
+        {({ setFieldValue, isSubmitting }) => (
           <Form className="bg-white shadow-lg p-6 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Product Name */}
+            {/* Name */}
             <div>
               <Field
                 type="text"
@@ -152,6 +170,21 @@ const Shafrin = () => {
               />
             </div>
 
+            {/* Brand */}
+            <div>
+              <Field
+                type="text"
+                name="brand"
+                placeholder="Brand"
+                className="border p-2 rounded w-full"
+              />
+              <ErrorMessage
+                name="brand"
+                component="p"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
             {/* Description */}
             <div className="md:col-span-2">
               <Field
@@ -172,25 +205,30 @@ const Shafrin = () => {
             <div className="md:col-span-2">
               <input
                 type="file"
-                name="image"
                 accept="image/*"
                 className="border p-2 rounded w-full"
-                onChange={(e) =>
-                  setFieldValue("image", e.currentTarget.files[0])
-                }
+                onChange={(e) => {
+                  setFieldValue("image", e.currentTarget.files[0] ?? null);
+                }}
               />
               <ErrorMessage
                 name="image"
                 component="p"
                 className="text-red-500 text-sm"
               />
+              {/* Helpful note for the user in edit mode */}
+              {editId && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave image empty to keep existing image.
+                </p>
+              )}
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded md:col-span-2"
+              className="bg-blue-600 text-white py-2 rounded md:col-span-2"
             >
               {editId ? "Update Product" : "Add Product"}
             </button>
@@ -198,7 +236,7 @@ const Shafrin = () => {
         )}
       </Formik>
 
-      {/* ✅ Product List */}
+      {/* Product List */}
       <h3 className="text-2xl font-bold text-gray-700 mt-10 mb-4">
         Product List
       </h3>
@@ -216,23 +254,22 @@ const Shafrin = () => {
                   className="h-40 w-full object-cover rounded mb-3"
                 />
               )}
-              <h4 className="text-lg font-bold text-gray-800">{item.name}</h4>
+              <h4 className="text-lg font-bold">{item.name}</h4>
               <p className="text-gray-600">{item.description}</p>
-              <p className="text-blue-600 font-bold">₹{item.price}</p>
-              <p className="text-sm font-semibold text-gray-500">
-                {item.category}
-              </p>
+              <p className="font-bold text-blue-600">₹{item.price}</p>
+              <p className="text-sm text-gray-500">{item.category}</p>
+              <p className="text-sm text-purple-600 font-semibold">{item.brand}</p>
 
               <div className="flex justify-between mt-3">
                 <button
-                  onClick={() => handleEdit(item, (vals) => setValues(vals))}
-                  className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
+                  onClick={() => handleEdit(item)}
+                  className="bg-green-500 text-white px-4 py-1 rounded"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(item._id)}
-                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                  className="bg-red-500 text-white px-4 py-1 rounded"
                 >
                   Delete
                 </button>
