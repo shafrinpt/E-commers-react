@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import axios from "axios";
 import { toast } from "react-toastify";
+import axiosInstance from "../Api/axiosInstance";
 
 function MakeupDetail() {
   const { id } = useParams();
@@ -15,9 +16,7 @@ function MakeupDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items/${id}`
-        );
+       const res = await axiosInstance.get(`/api/items/${id}`);
         setProduct(res.data);
         toast.success("💋 Product details loaded successfully!", {
           position: "top-right",

@@ -1,9 +1,9 @@
 import React from "react";
-import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { requestPasswordReset } from "../Api/authApi";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -13,18 +13,18 @@ const ForgotPassword = () => {
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Email is required"),
     }),
+
     onSubmit: async (values) => {
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/users/request-reset",
-          { email: values.email }
-        );
+        await requestPasswordReset(values.email);
 
         toast.success("📩 OTP sent to your email");
         navigate("/verify-otp", { state: { email: values.email } });
 
       } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong");
+        toast.error(
+          error.response?.data?.message || "Something went wrong"
+        );
       }
     },
   });

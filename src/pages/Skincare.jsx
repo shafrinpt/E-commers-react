@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import axiosInstance from "../Api/axiosInstance";
 
 function Skincare() {
   const dispatch = useDispatch();
@@ -14,7 +15,7 @@ function Skincare() {
   const [selectedSkinType, setSelectedSkinType] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [priceRange, setPriceRange] = useState(5000);
+  const [priceRange, setPriceRange] = useState(7001);
 
   const [showLoginPopup, setShowLoginPopup] = useState(false); // ADDED
 
@@ -22,9 +23,8 @@ function Skincare() {
   useEffect(() => {
     const fetchSkincare = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
-        );
+       const res = await axiosInstance.get("/api/items");
+
 
         const skincareItems = res.data.filter(
           (item) =>
@@ -172,7 +172,7 @@ function Skincare() {
           <input
             type="range"
             min="100"
-            max="5000"
+            max="7001"
             step="100"
             value={priceRange}
             onChange={(e) => setPriceRange(Number(e.target.value))}

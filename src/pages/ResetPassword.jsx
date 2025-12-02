@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
+import { resetPassword } from "../Api/authApi";
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -30,10 +31,7 @@ const ResetPassword = () => {
     }),
     onSubmit: async (values) => {
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/users/reset-password",
-          { email, password: values.password }
-        );
+        const res = await resetPassword({ email, password: values.password });
 
         toast.success("🎉 Password updated successfully!");
         navigate("/login");

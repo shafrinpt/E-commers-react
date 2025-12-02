@@ -5,6 +5,8 @@ import { addToCart } from "../redux/cartSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../Api/axiosInstance";
+
 
 function ProductDetail() {
   const { id } = useParams();
@@ -16,9 +18,8 @@ function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items/${id}`
-        );
+        const res = await axiosInstance.get(`/api/items/${id}`);
+
         setProduct(res.data);
       } catch (err) {
         console.error("Error fetching product details:", err);

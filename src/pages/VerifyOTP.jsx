@@ -1,9 +1,10 @@
 import React from "react";
-import axios from "axios";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import { verifyOtp } from "../Api/authApi";
 
 const VerifyOTP = () => {
   const location = useLocation();
@@ -21,11 +22,7 @@ const VerifyOTP = () => {
     }),
     onSubmit: async (values) => {
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/users/verify-otp",
-          { email, otp: values.otp }
-        );
-
+        const res = await verifyOtp({ email, otp: values.otp });
         toast.success("✅ OTP Verified!");
         navigate("/reset-password", {
           state: { email, otpVerified: true },

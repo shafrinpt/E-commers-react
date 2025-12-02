@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import axiosInstance from "../Api/axiosInstance";
 function Makeup() {
   const dispatch = useDispatch();
 
@@ -13,37 +13,36 @@ function Makeup() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [priceRange, setPriceRange] = useState(5000);
+  const [priceRange, setPriceRange] = useState(7001);
 
   const [showLoginPopup, setShowLoginPopup] = useState(false); // ADDED
 
   // Fetch makeup items
   useEffect(() => {
-    const fetchMakeup = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
-        );
+  const fetchMakeup = async () => {
+    try {
+      const res = await axiosInstance.get("/api/items");
 
-        const makeupItems = res.data.filter(
-          (item) =>
-            item.category && item.category.toLowerCase().includes("makeup")
-        );
+      const makeupItems = res.data.filter(
+        (item) =>
+          item.category && item.category.toLowerCase().includes("makeup")
+      );
 
-        setProducts(makeupItems);
+      setProducts(makeupItems);
 
-        toast.success("💄 Makeup collection loaded successfully!", {
-          position: "top-right",
-        });
-      } catch (err) {
-        toast.error("⚠️ Failed to load makeup products from server!", {
-          position: "top-right",
-        });
-      }
-    };
+      toast.success("💄 Makeup collection loaded successfully!", {
+        position: "top-right",
+      });
+    } catch (err) {
+      toast.error("⚠️ Failed to load makeup products from server!", {
+        position: "top-right",
+      });
+    }
+  };
 
-    fetchMakeup();
-  }, []);
+  fetchMakeup();
+}, []);
+
 
   // Filtering
   const filteredProducts = useMemo(() => {
@@ -141,7 +140,7 @@ function Makeup() {
           <input
             type="range"
             min="100"
-            max="5000"
+            max="7001"
             step="100"
             value={priceRange}
             onChange={(e) => setPriceRange(Number(e.target.value))}

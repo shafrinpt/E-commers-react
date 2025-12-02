@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import axiosInstance from "../Api/axiosInstance";
 
 function Products() {
   const dispatch = useDispatch();
@@ -18,9 +19,8 @@ function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/items`
-        );
+        const res = await axiosInstance.get("/api/items");
+
         setProducts(res.data);
       } catch (err) {
         toast.error("⚠️ Failed to load products");

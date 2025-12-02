@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import axiosInstance from "../Api/axiosInstance";
 
 const Shafrin = () => {
   const [items, setItems] = useState([]);
@@ -25,7 +26,8 @@ const Shafrin = () => {
 
   const fetchItems = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/items");
+      const res = await axiosInstance.get("/api/items");
+
       setItems(res.data);
     } catch (err) {
       toast.error("❌ Failed to fetch products");
@@ -60,11 +62,11 @@ const Shafrin = () => {
 
     try {
       if (editId) {
-        await axios.put(`http://localhost:5000/api/items/${editId}`, data);
+        await axios.put(`http://localhost:7001/api/items/${editId}`, data);
         toast.success("✅ Product updated successfully!");
         setEditId(null);
       } else {
-        await axios.post("http://localhost:5000/api/items", data);
+        await axios.post("http://localhost:7001/api/items", data);
         toast.success("✅ Product added successfully!");
       }
 
@@ -95,7 +97,7 @@ const Shafrin = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/items/${id}`);
+      await axios.delete(`http://localhost:7001/api/items/${id}`);
       await fetchItems();
       toast.success("🗑️ Product deleted successfully!");
       // If we deleted the currently edited item, reset form

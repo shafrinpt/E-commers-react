@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import axiosInstance from "../Api/axiosInstance";
+
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -21,9 +23,8 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get("/api/items");
+
         setUser(res.data.user);
         setFormData({
           name: res.data.user.name,
@@ -50,7 +51,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/api/users/profile",
+        "http://localhost:7001/api/users/profile",
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +70,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/api/users/password",
+        "http://localhost:7001/api/users/password",
         { password },
         { headers: { Authorization: `Bearer ${token}` } }
       );

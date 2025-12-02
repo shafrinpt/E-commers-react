@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react"; // 👈 ADDED
+import { registerUser } from "../Api/authApi";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,7 +25,8 @@ const Register = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        const res = await axios.post("http://localhost:5000/api/users/register", values);
+       const res = await registerUser(values);
+
         toast.success("✅ Registration successful!");
 
         localStorage.setItem("token", res.data.token);
